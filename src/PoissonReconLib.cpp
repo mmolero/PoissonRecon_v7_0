@@ -35,13 +35,6 @@ bool is_writing_to_memory = true;
 bool is_reading_from_memory = true;
 bool is_writing_int;
 
-#include "stdio.h"
-#include <string.h>
-#include <sstream>
-#include <iostream>
-
-#include "PoissonReconLib.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -62,12 +55,9 @@ bool is_writing_int;
 #include "omp.h"
 #endif // _OPENMP
 void DumpOutput( const char* format , ... );
-void DumpOutput2( char* str , const char* format , ... );
 #include "MultiGridOctreeData.h"
+void DumpOutput2( std::vector< char* >& comments , const char* format , ... );
 
-#ifndef _OPENMP
-#error OpenMP is required
-#endif
 #define DEFAULT_FULL_DEPTH 5
 
 #define XSTR(x) STR(x)
@@ -98,7 +88,7 @@ void DumpOutput( const char* format , ... )
 		va_end( args );
 	}
 }
-void DumpOutput2( char* str , const char* format , ... )
+void DumpOutput2( std::vector< char* >& comments  , const char* format , ... )
 {
 	if( outputFile )
 	{
@@ -116,6 +106,8 @@ void DumpOutput2( char* str , const char* format , ... )
 		vprintf( format , args );
 		va_end( args );
 	}
+	comments.push_back( new char[1024] );
+	char* str = comments.back();
 	va_list args;
 	va_start( args , format );
 	vsprintf( str , format , args );
@@ -131,7 +123,9 @@ cmdLineString
 	XForm( "xForm" );
 
 cmdLineReadable
-
+#ifdef _WIN32
+	Performance( "performance" ) ,
+#endif // _WIN32
 	Complete( "complete" ) ,
 	ShowResidual( "showResidual" ) ,
 	NoComments( "noComments" ) ,
@@ -158,8 +152,8 @@ cmdLineInt
 	Threads( "threads" , omp_get_num_procs() );
 
 cmdLineFloat
-    Color( "color" , 16.f ) ,
-	SamplesPerNode( "samplesPerNode" , 1.f ) ,
+	Color( "color" , 16.f ) ,
+	SamplesPerNode( "samplesPerNode" , 1.5f ) ,
 	Scale( "scale" , 1.1f ) ,
 	CSSolverAccuracy( "cgAccuracy" , float(1e-3) ) ,
 	PointWeight( "pointWeight" , 4.f );
@@ -176,11 +170,11 @@ cmdLineReadable* params[] =
 	&FullDepth ,
 	&MinDepth ,
 	&CGDepth , &Iters ,
-	&Complete , 
+	&Complete ,
 	&Color ,
-	#ifdef _WIN32
-		&Performance,
-	#endif // _WIN32
+#ifdef _WIN32
+	&Performance ,
+#endif // _WIN32
 };
 
 
@@ -301,7 +295,6 @@ PlyProperty PlyColorProperties[]=
 };
 
 bool ValidPlyColorProperties( const bool* props ){ return ( props[0] || props[3] ) && ( props[1] || props[4] ) && ( props[2] || props[5] ); }
-
 
 
 template< class Real , class Vertex >
