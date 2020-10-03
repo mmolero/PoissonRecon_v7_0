@@ -7,6 +7,7 @@ file(GLOB_RECURSE INCLUDES
     "${PROJECT_SOURCE_DIR}/src/*.h"
     "${PROJECT_SOURCE_DIR}/src/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/*.inl")
+
 list(REMOVE_ITEM INCLUDES ${PROJECT_SOURCE_DIR}/src/PoissonRecon.cpp)
 list(REMOVE_ITEM INCLUDES ${PROJECT_SOURCE_DIR}/src/SurfaceTrimmer.cpp)
 

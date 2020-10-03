@@ -359,6 +359,7 @@ int Execute( void )
 
 	return EXIT_SUCCESS;
 }
+/*
 int main( int argc , char* argv[] )
 {
 	int paramNum = sizeof(params)/sizeof(cmdLineReadable*);
@@ -379,3 +380,4 @@ int main( int argc , char* argv[] )
 	if( hasColor ) return Execute< PlyColorAndValueVertex< float > >();
 	else           return Execute< PlyValueVertex< float > >();
 }
+*/
